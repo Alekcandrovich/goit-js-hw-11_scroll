@@ -2,7 +2,7 @@ import './css/styles.css';
 import Notiflix from 'notiflix';
 import axios from 'axios';
 
-const API_KEY = 'u_ww974qml5n';
+const API_KEY = '35504205-dd2dec5e4a5642491c73dfb42';
 const form = document.getElementById('search-form');
 const gallery = document.querySelector('.gallery');
 
