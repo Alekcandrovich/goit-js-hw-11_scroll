@@ -103,5 +103,5 @@ const loadMore = async (entries, observer) => {
   });
 };
 
-const observer = new IntersectionObserver(loadMore, { threshold: 0 });
+const observer = new IntersectionObserver(loadMore, { threshold: 1 });
 observer.observe(document.querySelector('.load-more'));
