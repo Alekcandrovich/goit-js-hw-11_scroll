@@ -2,10 +2,10 @@
   "name": "parcel-project-template",
   "version": "2.0.0",
   "description": "",
-  "homepage": "https://Alekcandrovich.github.io/goit-js-hw-11_load-more",
+  "homepage": "https://Alekcandrovich.github.io/goit-js-hw-11_scroll",
   "scripts": {
     "start": "parcel src/*.html",
-    "build": "parcel build src/*.html --public-url /goit-js-hw-11_load-more/"
+    "build": "parcel build src/*.html --public-url /goit-js-hw-11_scroll/"
   },
   "repository": {
     "type": "git",
