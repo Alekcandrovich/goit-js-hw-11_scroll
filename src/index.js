@@ -19,6 +19,7 @@ const fetchImages = async () => {
     totalHits = data.totalHits;
     return data;
   } catch (error) {
+    loadMoreBtn.style.display = 'none';
     console.error(error);
     Notiflix.Notify.failure("An error occurred while fetching images. Please try again later.");
     return null;
