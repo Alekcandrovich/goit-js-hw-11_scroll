@@ -1,14 +1,17 @@
-import "./css/styles.css";
-import Notiflix from "notiflix";
-import axios from "axios";
+import './css/styles.css';
+import Notiflix from 'notiflix';
+import axios from 'axios';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const API_KEY = "35504205-dd2dec5e4a5642491c73dfb42";
-const form = document.getElementById("search-form");
-const gallery = document.querySelector(".gallery");
-const loadMoreBtn = document.querySelector(".load-more");
-let searchQuery = "";
+const API_KEY = '35504205-dd2dec5e4a5642491c73dfb42';
+const form = document.getElementById('search-form');
+const gallery = document.querySelector('.gallery');
+let searchQuery = '';
 let page = 1;
 let totalHits = 0;
+let isFetchingImages = false;
+const lightbox = new SimpleLightbox('.photo-card a');
 
 const fetchImages = async () => {
   const url = `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`;
@@ -19,20 +22,22 @@ const fetchImages = async () => {
     totalHits = data.totalHits;
     return data;
   } catch (error) {
-    loadMoreBtn.style.display = 'none';
     console.error(error);
     Notiflix.Notify.failure("An error occurred while fetching images. Please try again later.");
+    Notiflix.Notify.info("Or maybe you've reached the end of the search results.");
     return null;
   }
 };
 
-const displayImages = (data) => {
-  let images = "";
-  data.hits.forEach((image) => {
+const displayImages = data => {
+  let images = '';
+  data.hits.forEach(image => {
     const { webformatURL, tags, likes, views, comments, downloads } = image;
     images += `
       <div class="photo-card">
-        <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy">
+        <a href="${image.largeImageURL}">
+          <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy">
+        </a>
         <div class="info">
           <p class="info-item">
             <b>Likes</b>: ${image.likes}
@@ -51,21 +56,19 @@ const displayImages = (data) => {
     `;
   });
   gallery.insertAdjacentHTML("beforeend", images);
+  isFetchingImages = false;
+  lightbox.refresh();
   if (data.hits.length < 40) {
-    loadMoreBtn.style.display = "none";
     Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-  } else {
-    loadMoreBtn.style.display = "block";
   }
 };
 
-form.addEventListener("submit", async (e) => {
+form.addEventListener("submit", async e => {
   e.preventDefault();
   searchQuery = e.target.searchQuery.value.trim();
   page = 1;
-  loadMoreBtn.style.display = "none";
   totalHits = 0;
-  gallery.innerHTML = "";
+  gallery.innerHTML = '';
   if (!searchQuery) {
     return;
   }
@@ -81,18 +84,24 @@ form.addEventListener("submit", async (e) => {
   if (totalHits > 40) {
     loadMoreBtn.style.display = "block";
   }
-  Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+  Notiflix.Notify.success("Hooray! We found ${totalHits} images.");
+
 });
 
-loadMoreBtn.addEventListener("click", async () => {
-  page += 1;
-  const data = await fetchImages();
-  if (!data) {
-    return;
-  }
-  displayImages(data);
-  if (gallery.querySelectorAll(".photo-card").length === totalHits) {
-    loadMoreBtn.style.display = "none";
-    Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-  }
-});
+const loadMore = async (entries, observer) => {
+  entries.forEach(async entry => {
+    if (entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits)
+    {
+      isFetchingImages = true;
+      page += 1;
+      const data = await fetchImages();
+      if (!data) {
+        return;
+      }
+      displayImages(data);
+    }
+  });
+};
+
+const observer = new IntersectionObserver(loadMore, { threshold: 0 });
+observer.observe(document.querySelector('.load-more'));
