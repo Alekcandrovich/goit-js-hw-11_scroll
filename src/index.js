@@ -7,6 +7,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 const API_KEY = '35504205-dd2dec5e4a5642491c73dfb42';
 const form = document.getElementById('search-form');
 const gallery = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more');
 let searchQuery = '';
 let page = 1;
 let totalHits = 0;
@@ -84,24 +85,57 @@ form.addEventListener("submit", async e => {
   if (totalHits > 40) {
     loadMoreBtn.style.display = "block";
   }
-  Notiflix.Notify.success("Hooray! We found ${totalHits} images.");
+  Notiflix.Notify.success(`"Hooray! We found ${totalHits} images."`);
 
 });
 
 const loadMore = async (entries, observer) => {
   entries.forEach(async entry => {
-    if (entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits)
-    {
+    if (
+      entry.isIntersecting &&
+      !isFetchingImages &&
+      gallery.querySelectorAll('.photo-card').length !== totalHits
+    ) {
       isFetchingImages = true;
       page += 1;
-      const data = await fetchImages();
-      if (!data) {
-        return;
+      try {
+        const data = await fetchImages();
+        if (data) {
+          displayImages(data);
+        }
+      } catch (error) {
+        console.error(error);
       }
-      displayImages(data);
     }
   });
 };
 
 const observer = new IntersectionObserver(loadMore, { threshold: 1 });
 observer.observe(document.querySelector('.load-more'));
+observer.observe(loadMoreBtn);
+
+
+// const loadMore = async (entries, observer) => {
+//   for (let i = 0; i < entries.length; i += 1) {
+//     const entry = entries[i];
+//     if (
+//       entry.isIntersecting &&
+//       !isFetchingImages &&
+//       gallery.querySelectorAll('.photo-card').length !== totalHits
+//     ) {
+//       isFetchingImages = true;
+//       page += 1;
+//       const data = await fetchImages();
+//       if (!data) {
+//         return;
+//       }
+//       displayImages(data);
+//     }
+//     if (gallery.querySelectorAll('.photo-card').length === totalHits) {
+//       observer.unobserve(document.querySelector('.load-more'));
+//     }
+//   }
+// };
+
+// const observer = new IntersectionObserver(loadMore, { threshold: 1 });
+// observer.observe(document.querySelector('.load-more'));
