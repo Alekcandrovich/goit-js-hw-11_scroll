@@ -89,39 +89,35 @@ form.addEventListener("submit", async e => {
 
 });
 
-const loadMore = async (entries, observer) => {
-  entries.forEach(async entry => {
-    if (
-      entry.isIntersecting &&
-      !isFetchingImages &&
-      gallery.querySelectorAll('.photo-card').length !== totalHits
-    ) {
-      isFetchingImages = true;
-      page += 1;
-      try {
-        const data = await fetchImages();
-        if (data) {
-          displayImages(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  });
-};
+// const loadMore = async (entries, observer) => {
+//   entries.forEach(async entry => {
+//     if (
+//       entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits
+//     ) {
+//       isFetchingImages = true;
+//       page += 1;
+//       try {
+//         const data = await fetchImages();
+//         if (data) {
+//           displayImages(data);
+//         }
+//       } catch (error) {
+//         console.error(error);
+//       }
+//     }
+//   });
+// };
 
-const observer = new IntersectionObserver(loadMore, { threshold: 1 });
-observer.observe(document.querySelector('.load-more'));
-observer.observe(loadMoreBtn);
+// const observer = new IntersectionObserver(loadMore, { threshold: 1 });
+// observer.observe(document.querySelector('.load-more'));
+// observer.observe(loadMoreBtn);
 
 
 // const loadMore = async (entries, observer) => {
 //   for (let i = 0; i < entries.length; i += 1) {
 //     const entry = entries[i];
 //     if (
-//       entry.isIntersecting &&
-//       !isFetchingImages &&
-//       gallery.querySelectorAll('.photo-card').length !== totalHits
+//       entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits
 //     ) {
 //       isFetchingImages = true;
 //       page += 1;
@@ -139,3 +135,25 @@ observer.observe(loadMoreBtn);
 
 // const observer = new IntersectionObserver(loadMore, { threshold: 1 });
 // observer.observe(document.querySelector('.load-more'));
+
+
+const loadMore = async (entries, observer) => {
+  if (photoCards.length === totalHits) {
+    observer.unobserve(loadMoreBtn);
+    return;
+  }
+  for (let i = 0; i < entries.length; i += 1) {
+    const entry = entries[i];
+  if (entry.isIntersecting && !isFetchingImages && photoCards.length !== totalHits) {
+  isFetchingImages = true;
+  page += 1;
+  const data = await fetchImages();
+  if (!data) {
+    return;
+  }
+  displayImages(data);
+}
+} };
+
+const observer = new IntersectionObserver(loadMore, { threshold: 1 });
+observer.observe(document.querySelector('.load-more'));
