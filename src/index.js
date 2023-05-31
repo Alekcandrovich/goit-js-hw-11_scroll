@@ -24,8 +24,12 @@ const fetchImages = async () => {
     return data;
   } catch (error) {
     console.error(error);
-    Notiflix.Notify.failure("An error occurred while fetching images. Please try again later.");
-    Notiflix.Notify.info("Or maybe you've reached the end of the search results.");
+    Notiflix.Notify.failure(
+      'An error occurred while fetching images. Please try again later.'
+    );
+    Notiflix.Notify.info(
+      "Or maybe you've reached the end of the search results."
+    );
     return null;
   }
 };
@@ -56,15 +60,17 @@ const displayImages = data => {
       </div>
     `;
   });
-  gallery.insertAdjacentHTML("beforeend", images);
+  gallery.insertAdjacentHTML('beforeend', images);
   isFetchingImages = false;
   lightbox.refresh();
   if (data.hits.length < 40) {
-    Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+    Notiflix.Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
   }
 };
 
-form.addEventListener("submit", async e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
   searchQuery = e.target.searchQuery.value.trim();
   page = 1;
@@ -78,82 +84,36 @@ form.addEventListener("submit", async e => {
     return;
   }
   if (totalHits === 0) {
-    Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
     return;
   }
   displayImages(data);
   if (totalHits > 40) {
-    loadMoreBtn.style.display = "block";
+    loadMoreBtn.style.display = 'block';
   }
   Notiflix.Notify.success(`"Hooray! We found ${totalHits} images."`);
-
 });
 
-// const loadMore = async (entries, observer) => {
-//   entries.forEach(async entry => {
-//     if (
-//       entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits
-//     ) {
-//       isFetchingImages = true;
-//       page += 1;
-//       try {
-//         const data = await fetchImages();
-//         if (data) {
-//           displayImages(data);
-//         }
-//       } catch (error) {
-//         console.error(error);
-//       }
-//     }
-//   });
-// };
-
-// const observer = new IntersectionObserver(loadMore, { threshold: 1 });
-// observer.observe(document.querySelector('.load-more'));
-// observer.observe(loadMoreBtn);
-
-
-// const loadMore = async (entries, observer) => {
-//   for (let i = 0; i < entries.length; i += 1) {
-//     const entry = entries[i];
-//     if (
-//       entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits
-//     ) {
-//       isFetchingImages = true;
-//       page += 1;
-//       const data = await fetchImages();
-//       if (!data) {
-//         return;
-//       }
-//       displayImages(data);
-//     }
-//     if (gallery.querySelectorAll('.photo-card').length === totalHits) {
-//       observer.unobserve(document.querySelector('.load-more'));
-//     }
-//   }
-// };
-
-// const observer = new IntersectionObserver(loadMore, { threshold: 1 });
-// observer.observe(document.querySelector('.load-more'));
-
-
 const loadMore = async (entries, observer) => {
-  if (photoCards.length === totalHits) {
-    observer.unobserve(loadMoreBtn);
-    return;
-  }
-  for (let i = 0; i < entries.length; i += 1) {
-    const entry = entries[i];
-  if (entry.isIntersecting && !isFetchingImages && photoCards.length !== totalHits) {
-  isFetchingImages = true;
-  page += 1;
-  const data = await fetchImages();
-  if (!data) {
-    return;
-  }
-  displayImages(data);
-}
-} };
+  entries.forEach(async entry => {
+    if (
+      entry.isIntersecting && !isFetchingImages && gallery.querySelectorAll('.photo-card').length !== totalHits
+    ) {
+      isFetchingImages = true;
+      page += 1;
+      try {
+        const data = await fetchImages();
+        if (data) {
+          displayImages(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  });
+};
 
 const observer = new IntersectionObserver(loadMore, { threshold: 1 });
 observer.observe(document.querySelector('.load-more'));
